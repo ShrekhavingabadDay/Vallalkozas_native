@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/chosenDate"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="898dp"
+            android:layout_height="500dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginRight="1dp"
+            android:layout_marginBottom="1dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/placeNameInput"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chosenDate">
+
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            </ListView>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toBottomOf="@+id/linearLayout" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="182dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/placeNameInput"
+                android:layout_width="556dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="96dp"
+                android:layout_marginRight="96dp"
+                android:width="400dp"
+                android:height="50dp"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:singleLine="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/addPlaceButton"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/addPlaceButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="80dp"
+                android:layout_marginRight="80dp"
+                android:text="@string/helyszin_string"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/saveAllButton"
+            android:layout_width="match_parent"
+            android:layout_height="71dp"
+            android:text="Mentés és vissza a naptárhoz" />
+
+    </LinearLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
