@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
         // sqLiteManager.ClearDB();
 
+        // getApplicationContext().deleteDatabase("VallalkozasDB");
+
         calendar = (CalendarView) findViewById(R.id.calendarView);
         goToAddWorker = (Button) findViewById(R.id.goToAddWorker);
 

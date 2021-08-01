@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -30,6 +31,7 @@ public class AddWorkerActivity extends AppCompatActivity {
     private Button addWorkerToList;
     private Button saveWorkersToDB;
     private ListView listView;
+    private TextView dbSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class AddWorkerActivity extends AppCompatActivity {
         addWorkerToList = (Button) findViewById(R.id.appendWorkerButton);
         saveWorkersToDB = (Button) findViewById(R.id.saveWorkersButton);
         listView = (ListView) findViewById(R.id.listView);
+        dbSize = (TextView) findViewById(R.id.dbSize);
 
         addWorkerToList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +61,12 @@ public class AddWorkerActivity extends AppCompatActivity {
             }
         });
 
-        newWorkerNames = new ArrayList<String>();
+        File f = getApplicationContext().getDatabasePath("VallalkozasDB");
+        long DBsize = f.length();
+
+        dbSize.setText(Long.toString(DBsize) + " byte");
+
+        newWorkerNames = sqLiteManager.getAllWorkerNames();
         newWorkerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, newWorkerNames);
         listView.setAdapter(newWorkerArrayAdapter);
 

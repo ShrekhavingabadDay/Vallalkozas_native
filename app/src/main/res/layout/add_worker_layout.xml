@@ -51,4 +51,9 @@
         android:layout_height="wrap_content"
         android:text="Munkások mentése" />
 
+    <TextView
+        android:id="@+id/dbSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

@@ -115,6 +115,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
+        db.delete(ALL_WORKER_TABLE_NAME, "1=1", null);
+
         for (int i = 0; i<workersToAdd.size(); ++i){
 
             ContentValues contentValues = new ContentValues();
