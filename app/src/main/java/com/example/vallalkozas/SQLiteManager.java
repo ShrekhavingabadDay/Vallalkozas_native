@@ -20,6 +20,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String DAY_TABLE_NAME = "Day";
     private static final String PLACE_TABLE_NAME = "Place";
     private static final String WORKER_TABLE_NAME = "Worker";
+    private static final String ALL_WORKER_TABLE_NAME = "AllWorkers";
 
     private static final String ID_FIELD = "id";
     private static final String DATE_FIELD = "date";
@@ -27,6 +28,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     private static final String HOURS_FIELD = "hours";
     private static final String DAY_ID_FIELD = "dayID";
     private static final String PLACE_ID_FIELD = "placeID";
+    private static final String NOTE_FIELD = "note";
 
     public SQLiteManager(Context context){
         super(context, DB_NAME, null, DB_VERSION);
@@ -43,6 +45,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         StringBuilder day_sql;
         StringBuilder place_sql;
         StringBuilder worker_sql;
+        StringBuilder all_worker_sql;
 
         // initializing *day* table
         day_sql = new StringBuilder()
@@ -66,6 +69,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 .append(DAY_ID_FIELD)
                 .append(" INT, ")
                 .append(NAME_FIELD)
+                .append(" TEXT, ")
+                .append(NOTE_FIELD)
                 .append(" TEXT)");
 
         db.execSQL(place_sql.toString());
@@ -87,11 +92,36 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 .append(" INT)");
 
         db.execSQL(worker_sql.toString());
+
+        // initializing *worker* table
+        all_worker_sql = new StringBuilder()
+                .append("CREATE TABLE ")
+                .append(ALL_WORKER_TABLE_NAME)
+                .append(" (")
+                .append(ID_FIELD)
+                .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
+                .append(NAME_FIELD)
+                .append(" TEXT) ");
+
+        db.execSQL(all_worker_sql.toString());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    public void writeWorkersToDB(ArrayList<String> workersToAdd){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (int i = 0; i<workersToAdd.size(); ++i){
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(NAME_FIELD, workersToAdd.get(i));
+
+            db.insert(ALL_WORKER_TABLE_NAME, "", contentValues);
+        }
     }
 
     public void writeDayToDB(DayData day){
@@ -111,6 +141,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     contentValues = new ContentValues();
                     contentValues.put(DAY_ID_FIELD, day_id);
                     contentValues.put(NAME_FIELD, day.places.get(i).PlaceName);
+                    contentValues.put(NOTE_FIELD, day.places.get(i).Note);
 
                     place_id = database.insert(PLACE_TABLE_NAME, "", contentValues);
 
@@ -178,7 +209,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT DISTINCT " + NAME_FIELD + " FROM " + WORKER_TABLE_NAME,
+                "SELECT DISTINCT " + NAME_FIELD + " FROM " + ALL_WORKER_TABLE_NAME,
                 null
         )){
             if (result.getCount() > 0){
