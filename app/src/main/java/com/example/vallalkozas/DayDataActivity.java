@@ -143,6 +143,7 @@ public class DayDataActivity extends AppCompatActivity {
     }
 
     private void saveToDB(DayData d){
+        Log.v(TAG, d.convertToString());
         SQLiteManager sqLiteManager = SQLiteManager.dbInstance(this);
         sqLiteManager.writeDayToDB(d);
     }

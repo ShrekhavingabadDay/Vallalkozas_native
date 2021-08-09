@@ -1,6 +1,7 @@
 package com.example.vallalkozas;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
@@ -30,6 +32,7 @@ public class AddWorkerActivity extends AppCompatActivity {
     private EditText editWorkerName;
     private Button addWorkerToList;
     private Button saveWorkersToDB;
+    private Button clearDBbutton;
     private ListView listView;
     private TextView dbSize;
 
@@ -42,6 +45,7 @@ public class AddWorkerActivity extends AppCompatActivity {
         editWorkerName = (EditText) findViewById(R.id.newWorkerNameTextInput);
         addWorkerToList = (Button) findViewById(R.id.appendWorkerButton);
         saveWorkersToDB = (Button) findViewById(R.id.saveWorkersButton);
+        clearDBbutton = (Button) findViewById(R.id.clearDBbutton);
         listView = (ListView) findViewById(R.id.listView);
         dbSize = (TextView) findViewById(R.id.dbSize);
 
@@ -51,6 +55,7 @@ public class AddWorkerActivity extends AppCompatActivity {
                 String nameInputValue = editWorkerName.getText().toString();
                 newWorkerNames.add(nameInputValue);
                 newWorkerArrayAdapter.notifyDataSetChanged();
+                editWorkerName.setText("");
             }
         });
 
@@ -61,10 +66,34 @@ public class AddWorkerActivity extends AppCompatActivity {
             }
         });
 
-        File f = getApplicationContext().getDatabasePath("VallalkozasDB");
-        long DBsize = f.length();
+        clearDBbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClearDBClicked();
+            }
+        });
 
-        dbSize.setText(Long.toString(DBsize) + " byte");
+        File f = getApplicationContext().getDatabasePath("VallalkozasDB");
+        long DBsize;
+
+        long DBsizeB = f.length();
+
+        long DBsizeMB = DBsizeB/(1024*1024);
+
+        if (DBsizeMB == 0){
+            long DBsizeKB = DBsizeB/1024;
+            if (DBsizeKB == 0){
+                DBsize = DBsizeB;
+            }
+            else {
+                DBsize = DBsizeKB;
+            }
+        }
+        else{
+            DBsize = DBsizeMB;
+        }
+
+        dbSize.setText("Az adatbázis mérete: " + Long.toString(DBsize/(1024*1024)) + " MB");
 
         newWorkerNames = sqLiteManager.getAllWorkerNames();
         newWorkerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, newWorkerNames);
@@ -88,5 +117,21 @@ public class AddWorkerActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void onClearDBClicked(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddWorkerActivity.this);
+
+        builder.setTitle("Az adatbázis adatai végleg törlődni fognak.")
+                .setMessage("Biztos törlöd?")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sqLiteManager.ClearDB();
+                    }
+                })
+                .setNegativeButton("Mégse", null);
+        AlertDialog alert  = builder.create();
+        alert.show();
     }
 }

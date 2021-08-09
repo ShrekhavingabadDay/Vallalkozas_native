@@ -31,7 +31,7 @@ public class DayData implements Serializable {
     }
 
     public void addPlace(String placeName){
-        PlaceData newPlace = new PlaceData(placeName);
+        PlaceData newPlace = new PlaceData(placeName, new ArrayList<MyWorker>());
         this.places.add(newPlace);
     }
 
@@ -55,8 +55,32 @@ public class DayData implements Serializable {
 
     public String formatDate(String chosenDateString){
         String[] splitDate = chosenDateString.split("-");
-        String chosenMonthName = this.months[Integer.parseInt(splitDate[1])];
+        String chosenMonthName = this.months[Integer.parseInt(splitDate[1])-1];
 
         return (splitDate[0]+"."+chosenMonthName+"." +splitDate[2] + ".");
+    }
+
+    public String convertToString(){
+
+        StringBuilder finalString = new StringBuilder();
+        ArrayList<MyWorker> currentWorkers;
+
+        finalString.append(this.formatDate(this.date) + "\n");
+
+        for (int i = 0; i<this.places.size(); ++i){
+            finalString.append(
+                    "\t" + this.getPlace(i).PlaceName + "\n"
+            );
+
+            currentWorkers = this.getPlace(i).workers;
+
+            for (int j = 0; j<currentWorkers.size(); ++j){
+                finalString.append(
+                        "\t\t" + currentWorkers.get(j).name + " - " + currentWorkers.get(j).hours + "\n"
+                );
+            }
+        }
+
+        return finalString.toString();
     }
 }

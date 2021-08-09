@@ -54,6 +54,15 @@
     <TextView
         android:id="@+id/dbSize"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:translationY="50dp" />
+
+    <Button
+        android:id="@+id/clearDBbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Adatbázis ürítése"
+        android:translationY="50dp" />
 
 </LinearLayout>

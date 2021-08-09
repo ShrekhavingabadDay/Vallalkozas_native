@@ -19,6 +19,7 @@
         <activity android:name=".DayDataActivity"></activity>
         <activity android:name=".PlaceDataActivity"></activity>
         <activity android:name=".AddWorkerActivity"></activity>
+        <activity android:name=".SummaryActivity"></activity>
 
     </application>
 

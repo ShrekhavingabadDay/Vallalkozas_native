@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.vallalkozas.dataClasses.DayData;
 import com.example.vallalkozas.dataClasses.MyWorker;
+import com.example.vallalkozas.dataClasses.PlaceData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SQLiteManager extends SQLiteOpenHelper {
 
@@ -272,11 +275,13 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT " + ID_FIELD + " FROM " + DAY_TABLE_NAME + " WHERE " + DATE_FIELD + "=" + dateString,
-                null
+                "SELECT " + ID_FIELD + " FROM " + DAY_TABLE_NAME + " WHERE " + DATE_FIELD + "=?",
+                new String[]{dateString}
         )){
             if (result.getCount() > 0){
+                result.moveToFirst();
                 return result.getLong(0);
+
             }
         }
         return 0;
@@ -291,6 +296,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 null
         )){
             if (result.getCount() > 0){
+                result.moveToFirst();
                 return result.getLong(0);
             }
         }
@@ -303,6 +309,79 @@ public class SQLiteManager extends SQLiteOpenHelper {
         sqLiteDatabase.delete(DAY_TABLE_NAME, "1=1", null);
         sqLiteDatabase.delete(PLACE_TABLE_NAME, "1=1", null);
         sqLiteDatabase.delete(WORKER_TABLE_NAME, "1=1", null);
+    }
+
+    public DayData collectDayData(String day){
+
+        long dayId = getDayId(day);
+
+        int placeIndex;
+
+        String workerName;
+        int workingHours;
+
+        DayData collectedDayData = new DayData(new ArrayList<PlaceData>(), day);
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
+        try (Cursor placeResult = sqLiteDatabase.rawQuery(
+                "SELECT " + NAME_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
+            new String[]{Long.toString(dayId)}
+        )){
+            if (placeResult.getCount() > 0){
+                while (placeResult.moveToNext()){
+                    collectedDayData.addPlace(placeResult.getString(0));
+
+                    placeIndex = collectedDayData.places.size() - 1;
+
+                    try (Cursor workerResult = sqLiteDatabase.rawQuery(
+                            "SELECT " + NAME_FIELD+", " + HOURS_FIELD + " FROM " + WORKER_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
+                            new String[]{Long.toString(dayId)}
+                    )){
+                        if (workerResult.getCount() > 0){
+                            while (workerResult.moveToNext()){
+
+                                workerName = workerResult.getString(0);
+                                workingHours = workerResult.getInt(1);
+
+                                Log.v("sqlitemanager", collectedDayData.getPlace(placeIndex).PlaceName);
+
+                                collectedDayData.getPlace(placeIndex).addWorker(workerName, workingHours);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return collectedDayData;
+
+    }
+
+    public HashMap<String, Integer> workerSummary(){
+        HashMap<String, Integer> workerSummary = new HashMap<String, Integer>();
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String workerName;
+        int workingHours;
+
+        try (Cursor result = sqLiteDatabase.rawQuery(
+                "SELECT " + NAME_FIELD +", "+ HOURS_FIELD + " FROM " + WORKER_TABLE_NAME,
+                null
+        )){
+            if (result.getCount() > 0){
+                while (result.moveToNext()){
+                    workerName = result.getString(0);
+                    workingHours = result.getInt(1);
+                    if (workerSummary.containsKey(workerName)){
+                        workerSummary.put(workerName, workerSummary.get(workerName) + workingHours);
+                    }else{
+                        workerSummary.put(workerName, workingHours);
+                    }
+                }
+            }
+        }
+        return workerSummary;
     }
 
 
