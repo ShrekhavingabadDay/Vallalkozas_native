@@ -359,15 +359,34 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
     }
 
-    public HashMap<String, Integer> workerSummary(){
+    /*
+    * "SELECT" + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + WORKER_TABLE_NAME + "." + HOURS_FIELD + ", " + DAY_TABLE_NAME+ "."+ DATE_FIELD +
+    * " FROM " + WORKER_TABLE_NAME +
+    * " INNER JOIN " + DAY_TABLE_NAME + " ON  " + DAY_TABLE_NAME + "." + ID_FIELD + " = " + WORKER_TABLE_NAME + "." + DAY_ID_FIELD
+    * */
+
+    /*
+    * "SELECT " + PLACE_TABLE_NAME + "." + NAME_FIELD + ", SUM(" + WORKER_TABLE_NAME + "." + HOURS_FIELD + ") as sum_hours " +
+    * "FROM "  + DAY_TABLE_NAME + " d " +
+    * "INNER JOIN " + PLACE_TABLE_NAME + " p "
+    *   "ON d." + ID_FIELD + " = p." + DAY_ID_FIELD +
+    * " INNER JOIN " + WORKER_TABLE_NAME + " w "
+    *   "ON w." + PLACE_ID_FIELD+" = p." +ID_FIELD+
+    * "WHERE d." + DATE_FIELD +" =?"
+    * */
+
+    public HashMap<String, Integer> workerSummary(String chosenMonth){
         HashMap<String, Integer> workerSummary = new HashMap<String, Integer>();
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         String workerName;
         int workingHours;
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT " + NAME_FIELD +", "+ HOURS_FIELD + " FROM " + WORKER_TABLE_NAME,
-                null
+                "SELECT " + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + WORKER_TABLE_NAME + "." + HOURS_FIELD + ", " + DAY_TABLE_NAME+ "."+ DATE_FIELD +
+                    " FROM " + WORKER_TABLE_NAME +
+                    " INNER JOIN " + DAY_TABLE_NAME + " ON  " + DAY_TABLE_NAME + "." + ID_FIELD + " = " + WORKER_TABLE_NAME + "." + DAY_ID_FIELD +
+                    " WHERE " +  DAY_TABLE_NAME+ "."+ DATE_FIELD + " =?",
+                new String[]{ "SUBSTRING(" + chosenMonth + ",0,6)" }
         )){
             if (result.getCount() > 0){
                 while (result.moveToNext()){
@@ -382,6 +401,34 @@ public class SQLiteManager extends SQLiteOpenHelper {
             }
         }
         return workerSummary;
+    }
+
+    public HashMap<String, Integer> placeSummary(String chosenMonth){
+        HashMap<String, Integer> placeSummary = new HashMap<String, Integer>();
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String placeName;
+        int placeHours;
+        ArrayList<Long> placeIds = new ArrayList<Long>();
+
+        try (Cursor result = sqLiteDatabase.rawQuery(
+                "SELECT p." + NAME_FIELD + ", SUM( w." + HOURS_FIELD + ") as sum_hours " +
+                "FROM "  + DAY_TABLE_NAME + " d " +
+                "INNER JOIN " + PLACE_TABLE_NAME + " p " +
+                "ON d." + ID_FIELD + " = p." + DAY_ID_FIELD +
+                " INNER JOIN " + WORKER_TABLE_NAME + " w " +
+                "ON w." + PLACE_ID_FIELD+" = p." +ID_FIELD +
+                " WHERE d." + DATE_FIELD +" =?",
+                new String[]{ "SUBSTRING(" + chosenMonth + ",0,6)" }
+        )){
+            if (result.getCount() > 0){
+                while (result.moveToNext()){
+                    placeName = result.getString(0);
+                    placeHours = result.getInt(1);
+                    placeSummary.put(placeName, placeHours);
+                }
+            }
+        }
+        return placeSummary;
     }
 
 

@@ -54,6 +54,8 @@ public class DayData implements Serializable {
     }
 
     public String formatDate(String chosenDateString){
+        Log.v("DayData", chosenDateString);
+
         String[] splitDate = chosenDateString.split("-");
         String chosenMonthName = this.months[Integer.parseInt(splitDate[1])-1];
 

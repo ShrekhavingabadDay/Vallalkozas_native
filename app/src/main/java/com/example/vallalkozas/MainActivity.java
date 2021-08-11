@@ -18,11 +18,11 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-// TODO: add summary page -> summarize hours spent at one place + work on save system because currently it adds duplicate data
+// TODO: work on save system because currently it adds duplicate data -> saving days is really bad at the moment + summary page not working
 
 public class MainActivity extends AppCompatActivity {
 
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private CalendarView calendar;
     private Button goToAddWorker;
@@ -54,7 +54,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
 
-                chosenDate = year + "-" + (month+1) + "-" + dayOfMonth;
+                String monthString = Integer.toString(month + 1);
+
+                if (monthString.length() == 1) monthString = "0" + monthString;
+
+                String dayString = Integer.toString(dayOfMonth);
+
+                if (dayString.length() == 1) dayString = "0" + dayString;
+
+                chosenDate = year + "-" + monthString + "-" + dayString;
 
                 chosenDayData = sqLiteManager.collectDayData(chosenDate);
                 chosenDayDataTextView.setText(chosenDayData.convertToString());
@@ -63,9 +71,10 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        chosenDayData = sqLiteManager.collectDayData(sdf.format(calendar.getDate()));
+        chosenDate = sdf.format(calendar.getDate());
 
-        Log.v("MainActivity", sdf.format(calendar.getDate()));
+        chosenDayData = sqLiteManager.collectDayData(chosenDate);
+
         chosenDayDataTextView.setText(chosenDayData.convertToString());
 
         goToAddWorker.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +88,11 @@ public class MainActivity extends AppCompatActivity {
         navigateToSummaryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SummaryActivity.class));
+                Intent goToSummary = new Intent(MainActivity.this, SummaryActivity.class);
+
+                goToSummary.putExtra("month", chosenDate.substring(0, 7));
+
+                startActivity(goToSummary);
             }
         });
 
