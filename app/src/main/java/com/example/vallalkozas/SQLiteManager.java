@@ -325,6 +325,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
     public DayData collectDayData(String day){
 
         long dayId = getDayId(day);
+        long placeId;
 
         int placeIndex;
 
@@ -335,20 +336,22 @@ public class SQLiteManager extends SQLiteOpenHelper {
         DayData collectedDayData = new DayData(new ArrayList<>(), day);
 
         try (Cursor placeResult = sqLiteDatabase.rawQuery(
-                "SELECT " + NAME_FIELD + ", " + NOTE_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
+                "SELECT " + ID_FIELD + ", " + NAME_FIELD + ", " + NOTE_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
             new String[]{Long.toString(dayId)}
         )){
             if (placeResult.getCount() > 0){
                 while (placeResult.moveToNext()){
-                    collectedDayData.addPlace(placeResult.getString(0));
+                    collectedDayData.addPlace(placeResult.getString(1));
 
                     placeIndex = collectedDayData.places.size() - 1;
 
-                    collectedDayData.getPlace(placeIndex).setNote(placeResult.getString(1));
+                    collectedDayData.getPlace(placeIndex).setNote(placeResult.getString(2));
+
+                    placeId = placeResult.getLong(0);
 
                     try (Cursor workerResult = sqLiteDatabase.rawQuery(
-                            "SELECT " + NAME_FIELD+", " + HOURS_FIELD + " FROM " + WORKER_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "= ?",
-                            new String[]{Long.toString(dayId)}
+                            "SELECT " + NAME_FIELD+", " + HOURS_FIELD + " FROM " + WORKER_TABLE_NAME + " WHERE " + DAY_ID_FIELD + " = ? AND " + PLACE_ID_FIELD + " = ?",
+                            new String[]{Long.toString(dayId), Long.toString(placeId)}
                     )){
                         if (workerResult.getCount() > 0){
                             while (workerResult.moveToNext()){

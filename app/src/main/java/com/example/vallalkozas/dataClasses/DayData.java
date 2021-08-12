@@ -77,14 +77,14 @@ public class DayData implements Serializable {
 
         for (int i = 0; i<this.places.size(); ++i){
             finalString.append(
-                    "\t" + this.getPlace(i).PlaceName + "\n"
+                    "├── " + this.getPlace(i).PlaceName + " - " + this.getPlace(i).Note + "\n"
             );
 
             currentWorkers = this.getPlace(i).workers;
 
             for (int j = 0; j<currentWorkers.size(); ++j){
                 finalString.append(
-                        "\t\t" + currentWorkers.get(j).name + " - " + currentWorkers.get(j).hours + "\n"
+                        "│   └── " + currentWorkers.get(j).name + " - " + currentWorkers.get(j).hours + "\n"
                 );
             }
         }

@@ -66,6 +66,7 @@ public class AddWorkerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sqLiteManager.writeWorkersToDB(newWorkerNames);
+                Toast.makeText(getApplicationContext(), "Sikeres mentés!", Toast.LENGTH_SHORT).show();
             }
         });
 
