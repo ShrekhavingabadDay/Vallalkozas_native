@@ -12,7 +12,7 @@ public class DayData implements Serializable {
     public ArrayList<PlaceData> places;
 
     // necessary array for parsing monthnumber to monthname
-    public String months[] = { "január",
+    public static String months[] = { "január",
                         "február",
                         "március",
                         "április",
@@ -54,12 +54,18 @@ public class DayData implements Serializable {
     }
 
     public String formatDate(String chosenDateString){
-        Log.v("DayData", chosenDateString);
 
         String[] splitDate = chosenDateString.split("-");
         String chosenMonthName = this.months[Integer.parseInt(splitDate[1])-1];
 
         return (splitDate[0]+"."+chosenMonthName+"." +splitDate[2] + ".");
+    }
+
+    public static String formatSummaryMonth(String summaryMonthName){
+        String[] splitMonthName = summaryMonthName.split("-");
+        String chosenMonthName = DayData.months[Integer.parseInt(splitMonthName[1]) - 1];
+
+        return (splitMonthName[0] + " " + chosenMonthName);
     }
 
     public String convertToString(){

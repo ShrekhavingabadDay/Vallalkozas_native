@@ -151,8 +151,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     place_id = database.insert(PLACE_TABLE_NAME, "", contentValues);
 
                 }else {
+                    contentValues = new ContentValues();
+                    contentValues.put(NOTE_FIELD, day.places.get(i).Note);
+
+                    database.update(PLACE_TABLE_NAME, contentValues, DAY_ID_FIELD + "=" + day_id, null);
+
                     place_id = getPlaceId(day.places.get(i).PlaceName, day_id);
                 }
+
+                database.delete(WORKER_TABLE_NAME, DAY_ID_FIELD + "="+day_id+" AND " + PLACE_ID_FIELD + "="+place_id, null);
 
                 for (int j = 0; j < day.places.get(i).workers.size(); ++j) {
 
@@ -163,19 +170,16 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     contentValues.put(NAME_FIELD, day.places.get(i).workers.get(j).name);
                     contentValues.put(HOURS_FIELD, day.places.get(i).workers.get(j).hours);
 
-                    if (workerInDB(day.places.get(i).workers.get(j).name, day_id, place_id)){
+                    /*if (workerInDB(day.places.get(i).workers.get(j).name, day_id, place_id)){
+                        Log.v("SQLiteManager", "worker already in db " + day.places.get(i).workers.get(j).name);
                         database.update(WORKER_TABLE_NAME,
                                         contentValues,
-                                 NAME_FIELD + "=? AND "+
-                                        DAY_ID_FIELD + "=? AND " +
-                                        PLACE_ID_FIELD + "=? AND",
-                                        new String[]{contentValues.get(NAME_FIELD).toString(),
-                                                     contentValues.get(DAY_ID_FIELD).toString(),
-                                                     contentValues.get(PLACE_ID_FIELD).toString()}
+                                        null,
+                                        null
                         );
-                    }else{
-                        database.insert(WORKER_TABLE_NAME, "", contentValues);
-                    }
+                    }else{*/
+                    database.insert(WORKER_TABLE_NAME, "", contentValues);
+                    //}
                 }
             }
         }
@@ -190,6 +194,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 contentValues = new ContentValues();
                 contentValues.put(DAY_ID_FIELD, day_id);
                 contentValues.put(NAME_FIELD, day.places.get(i).PlaceName);
+                contentValues.put(NOTE_FIELD, day.places.get(i).Note);
 
                 place_id = database.insert(PLACE_TABLE_NAME, "", contentValues);
 
@@ -231,9 +236,10 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT * FROM " + DAY_TABLE_NAME + " WHERE " + DATE_FIELD + "=" + dateString,
-                null
+                "SELECT * FROM " + DAY_TABLE_NAME + " WHERE " + DATE_FIELD + "= ?",
+                new String[]{dateString}
         )){
+            Log.v("SQLiteManager239", Integer.toString(result.getCount()));
             if (result.getCount() > 0){
                 return true;
             }
@@ -245,9 +251,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT * FROM " + PLACE_TABLE_NAME + " WHERE " + NAME_FIELD + "=" + placeName +
+                "SELECT * FROM " + PLACE_TABLE_NAME + " WHERE " + NAME_FIELD + "=?" +
                         " AND " + DAY_ID_FIELD + "=" + day_id,
-                null
+                new String[]{placeName}
         )){
             if (result.getCount() > 0){
                 return true;
@@ -260,9 +266,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT * FROM " + WORKER_TABLE_NAME + " WHERE " + NAME_FIELD + "=" + workerName +
+                "SELECT * FROM " + WORKER_TABLE_NAME + " WHERE " + NAME_FIELD + "=?" +
                         " AND " + DAY_ID_FIELD + "=" + day_id + " AND " + PLACE_ID_FIELD + "=" + place_id,
-                null
+                new String[]{workerName}
         )){
             if (result.getCount() > 0){
                 return true;
@@ -291,9 +297,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT" + ID_FIELD + "FROM " + PLACE_TABLE_NAME + " WHERE " + NAME_FIELD + "=" + placeName +
+                "SELECT " + ID_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + NAME_FIELD + "=?" +
                         " AND " + DAY_ID_FIELD + "=" + day_id,
-                null
+                new String[]{placeName}
         )){
             if (result.getCount() > 0){
                 result.moveToFirst();
@@ -309,6 +315,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
         sqLiteDatabase.delete(DAY_TABLE_NAME, "1=1", null);
         sqLiteDatabase.delete(PLACE_TABLE_NAME, "1=1", null);
         sqLiteDatabase.delete(WORKER_TABLE_NAME, "1=1", null);
+
+        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{DAY_TABLE_NAME});
+        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{PLACE_TABLE_NAME});
+        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{WORKER_TABLE_NAME});
+
     }
 
     public DayData collectDayData(String day){
@@ -320,12 +331,11 @@ public class SQLiteManager extends SQLiteOpenHelper {
         String workerName;
         int workingHours;
 
-        DayData collectedDayData = new DayData(new ArrayList<PlaceData>(), day);
-
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        DayData collectedDayData = new DayData(new ArrayList<>(), day);
 
         try (Cursor placeResult = sqLiteDatabase.rawQuery(
-                "SELECT " + NAME_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
+                "SELECT " + NAME_FIELD + ", " + NOTE_FIELD + " FROM " + PLACE_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
             new String[]{Long.toString(dayId)}
         )){
             if (placeResult.getCount() > 0){
@@ -334,8 +344,10 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
                     placeIndex = collectedDayData.places.size() - 1;
 
+                    collectedDayData.getPlace(placeIndex).setNote(placeResult.getString(1));
+
                     try (Cursor workerResult = sqLiteDatabase.rawQuery(
-                            "SELECT " + NAME_FIELD+", " + HOURS_FIELD + " FROM " + WORKER_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "=?",
+                            "SELECT " + NAME_FIELD+", " + HOURS_FIELD + " FROM " + WORKER_TABLE_NAME + " WHERE " + DAY_ID_FIELD + "= ?",
                             new String[]{Long.toString(dayId)}
                     )){
                         if (workerResult.getCount() > 0){
@@ -376,27 +388,24 @@ public class SQLiteManager extends SQLiteOpenHelper {
     * */
 
     public HashMap<String, Integer> workerSummary(String chosenMonth){
-        HashMap<String, Integer> workerSummary = new HashMap<String, Integer>();
+
+        HashMap<String, Integer> workerSummary = new HashMap<>();
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         String workerName;
         int workingHours;
 
         try (Cursor result = sqLiteDatabase.rawQuery(
-                "SELECT " + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + WORKER_TABLE_NAME + "." + HOURS_FIELD + ", " + DAY_TABLE_NAME+ "."+ DATE_FIELD +
+                "SELECT " + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + "SUM(" + WORKER_TABLE_NAME + "." + HOURS_FIELD + ")" +
                     " FROM " + WORKER_TABLE_NAME +
                     " INNER JOIN " + DAY_TABLE_NAME + " ON  " + DAY_TABLE_NAME + "." + ID_FIELD + " = " + WORKER_TABLE_NAME + "." + DAY_ID_FIELD +
-                    " WHERE " +  DAY_TABLE_NAME+ "."+ DATE_FIELD + " =?",
-                new String[]{ "SUBSTRING(" + chosenMonth + ",0,6)" }
+                    " WHERE substr(" +  DAY_TABLE_NAME+ "."+ DATE_FIELD + ",1,7) = ?",
+                new String[]{ chosenMonth }
         )){
             if (result.getCount() > 0){
                 while (result.moveToNext()){
                     workerName = result.getString(0);
                     workingHours = result.getInt(1);
-                    if (workerSummary.containsKey(workerName)){
-                        workerSummary.put(workerName, workerSummary.get(workerName) + workingHours);
-                    }else{
-                        workerSummary.put(workerName, workingHours);
-                    }
+                    workerSummary.put(workerName, workingHours);
                 }
             }
         }
@@ -404,11 +413,10 @@ public class SQLiteManager extends SQLiteOpenHelper {
     }
 
     public HashMap<String, Integer> placeSummary(String chosenMonth){
-        HashMap<String, Integer> placeSummary = new HashMap<String, Integer>();
+        HashMap<String, Integer> placeSummary = new HashMap<>();
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         String placeName;
         int placeHours;
-        ArrayList<Long> placeIds = new ArrayList<Long>();
 
         try (Cursor result = sqLiteDatabase.rawQuery(
                 "SELECT p." + NAME_FIELD + ", SUM( w." + HOURS_FIELD + ") as sum_hours " +
@@ -417,8 +425,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 "ON d." + ID_FIELD + " = p." + DAY_ID_FIELD +
                 " INNER JOIN " + WORKER_TABLE_NAME + " w " +
                 "ON w." + PLACE_ID_FIELD+" = p." +ID_FIELD +
-                " WHERE d." + DATE_FIELD +" =?",
-                new String[]{ "SUBSTRING(" + chosenMonth + ",0,6)" }
+                " WHERE substr(d." + DATE_FIELD +",1,7) = ?",
+                new String[]{ chosenMonth }
         )){
             if (result.getCount() > 0){
                 while (result.moveToNext()){

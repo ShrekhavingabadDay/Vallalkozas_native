@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,6 +36,8 @@ public class AddWorkerActivity extends AppCompatActivity {
     private Button clearDBbutton;
     private ListView listView;
     private TextView dbSize;
+
+    private File f;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,27 +76,8 @@ public class AddWorkerActivity extends AppCompatActivity {
             }
         });
 
-        File f = getApplicationContext().getDatabasePath("VallalkozasDB");
-        long DBsize;
-
-        long DBsizeB = f.length();
-
-        long DBsizeMB = DBsizeB/(1024*1024);
-
-        if (DBsizeMB == 0){
-            long DBsizeKB = DBsizeB/1024;
-            if (DBsizeKB == 0){
-                DBsize = DBsizeB;
-            }
-            else {
-                DBsize = DBsizeKB;
-            }
-        }
-        else{
-            DBsize = DBsizeMB;
-        }
-
-        dbSize.setText("Az adatbázis mérete: " + Long.toString(DBsize/(1024*1024)) + " MB");
+        f = getApplicationContext().getDatabasePath("VallalkozasDB");
+        dbSize.setText("Az adatbázis mérete: " + getDatabaseSize(f));
 
         newWorkerNames = sqLiteManager.getAllWorkerNames();
         newWorkerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, newWorkerNames);
@@ -128,10 +112,31 @@ public class AddWorkerActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         sqLiteManager.ClearDB();
+                        dbSize.setText("Az adatbázis mérete: " + getDatabaseSize(f));
+                        Toast.makeText(getApplicationContext(), "Az adatbázis üres!", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Mégse", null);
         AlertDialog alert  = builder.create();
         alert.show();
+    }
+
+    private String getDatabaseSize(File dbFile){
+        long DBsizeB = dbFile.length();
+
+        long DBsizeMB = DBsizeB/(1024*1024);
+
+        if (DBsizeMB == 0){
+            long DBsizeKB = DBsizeB/1024;
+            if (DBsizeKB == 0){
+                return DBsizeB + " byte";
+            }
+            else {
+                return DBsizeKB + " KB";
+            }
+        }
+        else{
+            return DBsizeMB + " MB";
+        }
     }
 }

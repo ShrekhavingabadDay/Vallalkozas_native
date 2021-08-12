@@ -15,7 +15,7 @@
             android:id="@+id/goToAddWorker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Új munkások hozzáadása"/>
+            android:text="Adatbázis szerkesztése" />
 
         <CalendarView
             android:id="@+id/calendarView"

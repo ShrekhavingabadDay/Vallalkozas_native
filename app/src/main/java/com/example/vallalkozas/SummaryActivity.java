@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vallalkozas.dataClasses.DayData;
+
 import java.util.HashMap;
 
 public class SummaryActivity extends AppCompatActivity {
@@ -32,20 +34,22 @@ public class SummaryActivity extends AppCompatActivity {
         summaryTextView = (TextView) findViewById(R.id.summaryText);
 
         String workerData = stringifySummary(sqLiteManager.workerSummary(chosenMonth));
-        Log.v("SummaryActivity", "workerData " + workerData);
         String placeData = stringifySummary(sqLiteManager.placeSummary(chosenMonth));
-        Log.v("SummaryActivity", "placeData " + placeData);
 
-        summaryTextView.setText(chosenMonth + "\n\n" + workerData + "\n" + placeData);
+        summaryTextView.setText(DayData.formatSummaryMonth(chosenMonth) + "\n\n" + workerData + "\n" + placeData);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String stringifySummary(HashMap<String, Integer> summaryHashmap){
+
+        if (summaryHashmap.containsKey(null)){
+            return " - ";
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         summaryHashmap.forEach((key, value) ->
                 stringBuilder.append(key + " - " + value + "\n"));
-
 
         return stringBuilder.toString();
     }
