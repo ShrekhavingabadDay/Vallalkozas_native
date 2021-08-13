@@ -4,7 +4,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -49,6 +51,7 @@ public class PlaceDataActivity extends AppCompatActivity {
     private Button addWorkerButton;
     private Button saveAndBackButton;
     private Button saveNoteButton;
+    private Button openAddWorkerDialogButton;
 
     private String chosenDate;
 
@@ -70,6 +73,7 @@ public class PlaceDataActivity extends AppCompatActivity {
         addWorkerButton = findViewById(R.id.addWorkerButton);
         saveAndBackButton = findViewById(R.id.saveAndBack);
         saveNoteButton = findViewById(R.id.saveNoteButton);
+        openAddWorkerDialogButton = findViewById(R.id.openAddWorkerDialogButton);
 
         addWorkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +95,13 @@ public class PlaceDataActivity extends AppCompatActivity {
                 String noteText = Note.getText().toString();
                 mPlaceData.setNote(noteText);
                 Toast.makeText(getApplicationContext(), "Jegyzet mentése sikeres!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        openAddWorkerDialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAddWorkerDialog();
             }
         });
 
@@ -165,6 +176,36 @@ public class PlaceDataActivity extends AppCompatActivity {
         recyclerView.setAdapter(workerAdapter);
     }
 
+    private void openAddWorkerDialog(){
+
+        AlertDialog.Builder mydialog = new AlertDialog.Builder(PlaceDataActivity.this);
+        mydialog.setTitle("Munkás neve: ");
+
+        final EditText nameInput = new EditText(PlaceDataActivity.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        mydialog.setView(nameInput);
+
+        mydialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String inputName=nameInput.getText().toString();
+                sqLiteManager.writeWorkerToDB(inputName);
+                workerNames.add(inputName);
+                workerNameAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), inputName +" sikeresen hozzáadva a listához!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mydialog.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        mydialog.show();
+    }
+
     @Override
     public void onBackPressed() {
         AlertDialog.Builder builder = new AlertDialog.Builder(PlaceDataActivity.this);
@@ -180,4 +221,6 @@ public class PlaceDataActivity extends AppCompatActivity {
         AlertDialog alert  = builder.create();
         alert.show();
     }
+
+
 }

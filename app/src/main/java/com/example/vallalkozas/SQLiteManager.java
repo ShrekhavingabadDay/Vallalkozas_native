@@ -129,6 +129,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
         }
     }
 
+    public void writeWorkerToDB(String workerNameToAdd){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NAME_FIELD, workerNameToAdd);
+        db.insert(ALL_WORKER_TABLE_NAME, "", contentValues);
+    }
+
     public void writeDayToDB(DayData day){
 
         SQLiteDatabase database = this.getWritableDatabase();
@@ -401,7 +410,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 "SELECT " + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + "SUM(" + WORKER_TABLE_NAME + "." + HOURS_FIELD + ")" +
                     " FROM " + WORKER_TABLE_NAME +
                     " INNER JOIN " + DAY_TABLE_NAME + " ON  " + DAY_TABLE_NAME + "." + ID_FIELD + " = " + WORKER_TABLE_NAME + "." + DAY_ID_FIELD +
-                    " WHERE substr(" +  DAY_TABLE_NAME+ "."+ DATE_FIELD + ",1,7) = ?",
+                    " WHERE substr(" +  DAY_TABLE_NAME+ "."+ DATE_FIELD + ",1,7) = ? " +
+                    "GROUP BY " + WORKER_TABLE_NAME + "." + NAME_FIELD,
                 new String[]{ chosenMonth }
         )){
             if (result.getCount() > 0){
@@ -428,7 +438,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 "ON d." + ID_FIELD + " = p." + DAY_ID_FIELD +
                 " INNER JOIN " + WORKER_TABLE_NAME + " w " +
                 "ON w." + PLACE_ID_FIELD+" = p." +ID_FIELD +
-                " WHERE substr(d." + DATE_FIELD +",1,7) = ?",
+                " WHERE substr(d." + DATE_FIELD +",1,7) = ? "+
+                "GROUP BY p." + NAME_FIELD ,
                 new String[]{ chosenMonth }
         )){
             if (result.getCount() > 0){

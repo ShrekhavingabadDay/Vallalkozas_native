@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-// TODO: work on save system because currently it adds duplicate data -> saving days is really bad at the moment + summary page not working
+// TODO: change width of listview in DayDataActivity + ask for confirmation on all delete actions
 
 public class MainActivity extends AppCompatActivity {
 
