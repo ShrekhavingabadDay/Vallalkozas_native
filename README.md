@@ -1,2 +1,2 @@
 # Vállalkozás
-Android alkalmazás táblagépre építőipari vállalkozás adatainak kezelésére
+Android alkalmazás táblagépre, építőipari vállalkozás adatainak kezelésére.
