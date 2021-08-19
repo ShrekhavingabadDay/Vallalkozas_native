@@ -163,12 +163,15 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     contentValues = new ContentValues();
                     contentValues.put(NOTE_FIELD, day.places.get(i).Note);
 
-                    database.update(PLACE_TABLE_NAME, contentValues, DAY_ID_FIELD + "=" + day_id, null);
+                    database.update(PLACE_TABLE_NAME,
+                                    contentValues,
+                                    DAY_ID_FIELD + "=" + day_id + " AND " + NAME_FIELD + " = ?",
+                                    new String[]{day.places.get(i).PlaceName});
 
                     place_id = getPlaceId(day.places.get(i).PlaceName, day_id);
                 }
 
-                database.delete(WORKER_TABLE_NAME, DAY_ID_FIELD + "="+day_id+" AND " + PLACE_ID_FIELD + "="+place_id, null);
+                database.delete(WORKER_TABLE_NAME, DAY_ID_FIELD + "="+day_id+" AND " + PLACE_ID_FIELD + "=" + place_id, null);
 
                 for (int j = 0; j < day.places.get(i).workers.size(); ++j) {
 
@@ -178,17 +181,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     contentValues.put(PLACE_ID_FIELD, place_id);
                     contentValues.put(NAME_FIELD, day.places.get(i).workers.get(j).name);
                     contentValues.put(HOURS_FIELD, day.places.get(i).workers.get(j).hours);
-
-                    /*if (workerInDB(day.places.get(i).workers.get(j).name, day_id, place_id)){
-                        Log.v("SQLiteManager", "worker already in db " + day.places.get(i).workers.get(j).name);
-                        database.update(WORKER_TABLE_NAME,
-                                        contentValues,
-                                        null,
-                                        null
-                        );
-                    }else{*/
                     database.insert(WORKER_TABLE_NAME, "", contentValues);
-                    //}
                 }
             }
         }
@@ -248,7 +241,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 "SELECT * FROM " + DAY_TABLE_NAME + " WHERE " + DATE_FIELD + "= ?",
                 new String[]{dateString}
         )){
-            Log.v("SQLiteManager239", Integer.toString(result.getCount()));
+            // Log.v("SQLiteManager239", Integer.toString(result.getCount()));
             if (result.getCount() > 0){
                 return true;
             }
@@ -368,7 +361,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                                 workerName = workerResult.getString(0);
                                 workingHours = workerResult.getInt(1);
 
-                                Log.v("sqlitemanager", collectedDayData.getPlace(placeIndex).PlaceName);
+                                // Log.v("sqlitemanager", collectedDayData.getPlace(placeIndex).PlaceName);
 
                                 collectedDayData.getPlace(placeIndex).addWorker(workerName, workingHours);
                             }
@@ -382,22 +375,6 @@ public class SQLiteManager extends SQLiteOpenHelper {
         return collectedDayData;
 
     }
-
-    /*
-    * "SELECT" + WORKER_TABLE_NAME + "." + NAME_FIELD + ", " + WORKER_TABLE_NAME + "." + HOURS_FIELD + ", " + DAY_TABLE_NAME+ "."+ DATE_FIELD +
-    * " FROM " + WORKER_TABLE_NAME +
-    * " INNER JOIN " + DAY_TABLE_NAME + " ON  " + DAY_TABLE_NAME + "." + ID_FIELD + " = " + WORKER_TABLE_NAME + "." + DAY_ID_FIELD
-    * */
-
-    /*
-    * "SELECT " + PLACE_TABLE_NAME + "." + NAME_FIELD + ", SUM(" + WORKER_TABLE_NAME + "." + HOURS_FIELD + ") as sum_hours " +
-    * "FROM "  + DAY_TABLE_NAME + " d " +
-    * "INNER JOIN " + PLACE_TABLE_NAME + " p "
-    *   "ON d." + ID_FIELD + " = p." + DAY_ID_FIELD +
-    * " INNER JOIN " + WORKER_TABLE_NAME + " w "
-    *   "ON w." + PLACE_ID_FIELD+" = p." +ID_FIELD+
-    * "WHERE d." + DATE_FIELD +" =?"
-    * */
 
     public HashMap<String, Integer> workerSummary(String chosenMonth){
 
@@ -451,6 +428,27 @@ public class SQLiteManager extends SQLiteOpenHelper {
             }
         }
         return placeSummary;
+    }
+
+    public ArrayList<String> noteSummary(){
+
+        ArrayList<String> noteSummary = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
+        try (Cursor result = sqLiteDatabase.rawQuery(
+                "SELECT " + PLACE_TABLE_NAME + "." + NAME_FIELD + ", " + PLACE_TABLE_NAME + "." + NOTE_FIELD +
+                    " FROM " + PLACE_TABLE_NAME +
+                    " GROUP BY " + PLACE_TABLE_NAME + "." + NAME_FIELD,
+                null
+        )){
+            if (result.getCount() > 0){
+                while (result.moveToNext()){
+                    noteSummary.add(result.getString(0));
+                    noteSummary.add(result.getString(1));
+                }
+            }
+        }
+        return noteSummary;
     }
 
 

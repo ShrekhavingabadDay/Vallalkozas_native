@@ -1,15 +1,20 @@
 package com.example.vallalkozas;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.example.vallalkozas.dataClasses.DayData;
 import com.example.vallalkozas.dataClasses.PlaceData;
@@ -31,9 +36,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView chosenDayDataTextView;
     private String chosenDate;
     private DayData chosenDayData;
+    private androidx.appcompat.widget.Toolbar toolbar;
 
     private SQLiteManager sqLiteManager = SQLiteManager.dbInstance(this);
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +51,13 @@ public class MainActivity extends AppCompatActivity {
         // getApplicationContext().deleteDatabase("VallalkozasDB");
 
         calendar = (CalendarView) findViewById(R.id.calendarView);
-        goToAddWorker = (Button) findViewById(R.id.goToAddWorker);
+        //goToAddWorker = (Button) findViewById(R.id.goToAddWorker);
         editChosenDayButton = (Button) findViewById(R.id.editChosenDayButton);
-        navigateToSummaryButton = (Button) findViewById(R.id.navigateToSummaryButton);
+        //navigateToSummaryButton = (Button) findViewById(R.id.navigateToSummaryButton);
         chosenDayDataTextView = (TextView) findViewById(R.id.chosenDayDataTextView);
+        toolbar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
 
         calendar.setFirstDayOfWeek(2);
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -77,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         chosenDayDataTextView.setText(chosenDayData.convertToString());
 
-        goToAddWorker.setOnClickListener(new View.OnClickListener() {
+        /*goToAddWorker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent addWorkerIntent = new Intent(MainActivity.this, AddWorkerActivity.class);
@@ -94,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(goToSummary);
             }
-        });
+        });*/
 
         editChosenDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,4 +117,35 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.summary:
+                Intent goToSummary = new Intent(MainActivity.this, SummaryActivity.class);
+                goToSummary.putExtra("month", chosenDate.substring(0, 7));
+                startActivity(goToSummary);
+                return true;
+
+            case R.id.database:
+                Intent addWorkerIntent = new Intent(MainActivity.this, AddWorkerActivity.class);
+                startActivity(addWorkerIntent);
+                return true;
+
+            case R.id.notes:
+                Intent noteIntent = new Intent(MainActivity.this, NoteActivity.class);
+                startActivity(noteIntent);
+                return true;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

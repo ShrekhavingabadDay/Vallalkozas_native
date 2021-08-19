@@ -20,6 +20,7 @@
         <activity android:name=".PlaceDataActivity"></activity>
         <activity android:name=".AddWorkerActivity"></activity>
         <activity android:name=".SummaryActivity"></activity>
+        <activity android:name=".NoteActivity"></activity>
 
     </application>
 

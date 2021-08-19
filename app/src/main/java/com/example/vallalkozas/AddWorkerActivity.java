@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,10 +30,10 @@ public class AddWorkerActivity extends AppCompatActivity {
     private ArrayList<String> newWorkerNames;
     private ArrayAdapter<String> newWorkerArrayAdapter;
 
-    private TextView newlyAddedName;
-    private EditText editWorkerName;
+    /*private TextView newlyAddedName;
+    private EditText editWorkerName;*/
     private Button addWorkerToList;
-    private Button saveWorkersToDB;
+    // private Button saveWorkersToDB;
     private Button clearDBbutton;
     private ListView listView;
     private TextView dbSize;
@@ -44,10 +45,7 @@ public class AddWorkerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_worker_layout);
 
-        // newlyAddedName = (TextView) findViewById(R.id.newWorkerNameTextView);
-        editWorkerName = (EditText) findViewById(R.id.newWorkerNameTextInput);
-        addWorkerToList = (Button) findViewById(R.id.appendWorkerButton);
-        saveWorkersToDB = (Button) findViewById(R.id.saveWorkersButton);
+        addWorkerToList = (Button) findViewById(R.id.saveWorkersButton);
         clearDBbutton = (Button) findViewById(R.id.clearDBbutton);
         listView = (ListView) findViewById(R.id.listView);
         dbSize = (TextView) findViewById(R.id.dbSize);
@@ -55,20 +53,10 @@ public class AddWorkerActivity extends AppCompatActivity {
         addWorkerToList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nameInputValue = editWorkerName.getText().toString();
-                newWorkerNames.add(nameInputValue);
-                newWorkerArrayAdapter.notifyDataSetChanged();
-                editWorkerName.setText("");
+                openAddNewWorkerDialog();
             }
         });
 
-        saveWorkersToDB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sqLiteManager.writeWorkersToDB(newWorkerNames);
-                Toast.makeText(getApplicationContext(), "Sikeres mentés!", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         clearDBbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,12 +81,25 @@ public class AddWorkerActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Context context = getApplicationContext();
-                Toast.makeText(context, "Munkás eltávolítva!", Toast.LENGTH_SHORT).show();
 
-                newWorkerNames.remove(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(AddWorkerActivity.this);
 
-                newWorkerArrayAdapter.notifyDataSetChanged();
+                builder.setTitle("A munkás végleg törlődni fog.")
+                        .setMessage("Biztos törlöd?")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Context context = getApplicationContext();
+                                Toast.makeText(context, "Munkás eltávolítva!", Toast.LENGTH_SHORT).show();
+
+                                newWorkerNames.remove(position);
+
+                                newWorkerArrayAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("Mégse", null);
+                AlertDialog alert  = builder.create();
+                alert.show();
                 return true;
             }
         });
@@ -139,5 +140,35 @@ public class AddWorkerActivity extends AppCompatActivity {
         else{
             return DBsizeMB + " MB";
         }
+    }
+
+    private void openAddNewWorkerDialog(){
+
+        AlertDialog.Builder mydialog = new AlertDialog.Builder(AddWorkerActivity.this);
+        mydialog.setTitle("Munkás neve: ");
+
+        final EditText nameInput = new EditText(AddWorkerActivity.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        mydialog.setView(nameInput);
+
+        mydialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String inputName=nameInput.getText().toString();
+                sqLiteManager.writeWorkerToDB(inputName);
+                newWorkerNames.add(inputName);
+                newWorkerArrayAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), inputName +" sikeresen hozzáadva a listához!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mydialog.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        mydialog.show();
     }
 }

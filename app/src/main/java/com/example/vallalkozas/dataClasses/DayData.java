@@ -76,8 +76,14 @@ public class DayData implements Serializable {
         finalString.append(this.formatDate(this.date) + "\n");
 
         for (int i = 0; i<this.places.size(); ++i){
+            String noteString = this.getPlace(i).Note;
+
+            if (noteString.length() > 10 ){
+                noteString = noteString.substring(1, 10)+"...";
+            }
+
             finalString.append(
-                    "├── " + this.getPlace(i).PlaceName + " - " + this.getPlace(i).Note + "\n"
+                    "├── " + this.getPlace(i).PlaceName + " - " + noteString + "\n"
             );
 
             currentWorkers = this.getPlace(i).workers;
