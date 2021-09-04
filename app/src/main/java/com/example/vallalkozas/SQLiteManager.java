@@ -120,6 +120,8 @@ public class SQLiteManager extends SQLiteOpenHelper {
 
         db.delete(ALL_WORKER_TABLE_NAME, "1=1", null);
 
+        db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + ALL_WORKER_TABLE_NAME + "'");
+
         for (int i = 0; i<workersToAdd.size(); ++i){
 
             ContentValues contentValues = new ContentValues();

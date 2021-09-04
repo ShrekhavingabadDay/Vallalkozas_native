@@ -30,7 +30,13 @@ public class NoteActivity extends AppCompatActivity {
             if (i%2 == 0){
                 finalString += toJoin.get(i)+ "\n" + new String(new char[toJoin.get(i).length()]).replace("\0", "─") + "\n";
             }else{
-                finalString += toJoin.get(i) + "\n\n\n";
+                String toAppend;
+                if (toJoin.get(i) != null){
+                    toAppend = toJoin.get(i);
+                }else{
+                    toAppend = "Nincs jegyzet";
+                }
+                finalString += toAppend + "\n\n\n";
             }
         }
 

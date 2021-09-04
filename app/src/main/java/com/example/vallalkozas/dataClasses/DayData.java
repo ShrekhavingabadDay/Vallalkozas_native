@@ -78,8 +78,13 @@ public class DayData implements Serializable {
         for (int i = 0; i<this.places.size(); ++i){
             String noteString = this.getPlace(i).Note;
 
-            if (noteString.length() > 10 ){
-                noteString = noteString.substring(1, 10)+"...";
+            if (noteString == null){
+                noteString = "Nincs jegyzet";
+            }
+            else{
+                if (noteString.length() > 10 ){
+                    noteString = noteString.substring(1, 10)+"...";
+                }
             }
 
             finalString.append(

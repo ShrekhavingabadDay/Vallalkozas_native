@@ -30,10 +30,7 @@ public class AddWorkerActivity extends AppCompatActivity {
     private ArrayList<String> newWorkerNames;
     private ArrayAdapter<String> newWorkerArrayAdapter;
 
-    /*private TextView newlyAddedName;
-    private EditText editWorkerName;*/
     private Button addWorkerToList;
-    // private Button saveWorkersToDB;
     private Button clearDBbutton;
     private ListView listView;
     private TextView dbSize;
@@ -45,10 +42,10 @@ public class AddWorkerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_worker_layout);
 
-        addWorkerToList = (Button) findViewById(R.id.saveWorkersButton);
-        clearDBbutton = (Button) findViewById(R.id.clearDBbutton);
-        listView = (ListView) findViewById(R.id.listView);
-        dbSize = (TextView) findViewById(R.id.dbSize);
+        addWorkerToList = findViewById(R.id.saveWorkersButton);
+        clearDBbutton = findViewById(R.id.clearDBbutton);
+        listView = findViewById(R.id.listView);
+        dbSize = findViewById(R.id.dbSize);
 
         addWorkerToList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +90,8 @@ public class AddWorkerActivity extends AppCompatActivity {
                                 Toast.makeText(context, "Munkás eltávolítva!", Toast.LENGTH_SHORT).show();
 
                                 newWorkerNames.remove(position);
+
+                                sqLiteManager.writeWorkersToDB(newWorkerNames);
 
                                 newWorkerArrayAdapter.notifyDataSetChanged();
                             }
