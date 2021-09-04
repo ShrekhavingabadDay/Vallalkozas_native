@@ -320,9 +320,9 @@ public class SQLiteManager extends SQLiteOpenHelper {
         sqLiteDatabase.delete(PLACE_TABLE_NAME, "1=1", null);
         sqLiteDatabase.delete(WORKER_TABLE_NAME, "1=1", null);
 
-        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{DAY_TABLE_NAME});
-        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{PLACE_TABLE_NAME});
-        sqLiteDatabase.rawQuery("UPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name =?", new String[]{WORKER_TABLE_NAME});
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + DAY_TABLE_NAME + "'");
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + PLACE_TABLE_NAME + "'");
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + WORKER_TABLE_NAME + "'");
 
     }
 
