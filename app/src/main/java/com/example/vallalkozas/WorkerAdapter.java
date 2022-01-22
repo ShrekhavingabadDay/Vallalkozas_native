@@ -1,6 +1,8 @@
 package com.example.vallalkozas;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,7 +59,7 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
                     String changedHours = holder.hourNum.getText().toString();
 
                     try {
-                        workerList.get(position).changeHours(Integer.parseInt(changedHours));
+                        workerList.get(holder.getAdapterPosition()).changeHours(Integer.parseInt(changedHours));
                     }catch (NumberFormatException e){
                         Toast.makeText(context, "Helytelen számformátum!", Toast.LENGTH_SHORT).show();
                         return false;
@@ -65,6 +67,31 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.MyViewHold
                     return true;
                 }
                 return false;
+            }
+        });
+
+        holder.hourNum.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                return;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                return;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String changedHours = s.toString();
+
+                try {
+                    workerList.get(holder.getAdapterPosition()).changeHours(Integer.parseInt(changedHours));
+                }catch (NumberFormatException e){
+                    Toast.makeText(context, "Helytelen számformátum!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                return;
             }
         });
 

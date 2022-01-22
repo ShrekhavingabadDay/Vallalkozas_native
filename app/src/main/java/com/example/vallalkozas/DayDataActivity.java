@@ -89,7 +89,7 @@ public class DayDataActivity extends AppCompatActivity {
         });
 
         placeNames = dayData.getPlaceNames();
-        placeNamesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, placeNames);
+        placeNamesAdapter = new ArrayAdapter<>(this, R.layout.custom_listview, placeNames);
         listView.setAdapter(placeNamesAdapter);
         setUpListViewListener();
 

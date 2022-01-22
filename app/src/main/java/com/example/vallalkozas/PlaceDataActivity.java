@@ -4,7 +4,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -48,6 +50,8 @@ public class PlaceDataActivity extends AppCompatActivity {
     private EditText editWorkerHours;
     private Button addWorkerButton;
     private Button saveAndBackButton;
+    private Button saveNoteButton;
+    private Button openAddWorkerDialogButton;
 
     private String chosenDate;
 
@@ -60,14 +64,16 @@ public class PlaceDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.placedata_layout);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        placeNameTextView = (TextView) findViewById(R.id.placeName);
-        Note = (EditText) findViewById(R.id.noteInput);
+        recyclerView = findViewById(R.id.recyclerView);
+        placeNameTextView = findViewById(R.id.placeName);
+        Note = findViewById(R.id.noteInput);
         // editWorkerName = (EditText) findViewById(R.id.editWorkerName);
-        selectWorkerSpinner = (Spinner) findViewById(R.id.selectWorker);
-        editWorkerHours = (EditText) findViewById(R.id.editHours);
-        addWorkerButton = (Button) findViewById(R.id.addWorkerButton);
-        saveAndBackButton = (Button) findViewById(R.id.saveAndBack);
+        selectWorkerSpinner = findViewById(R.id.selectWorker);
+        editWorkerHours = findViewById(R.id.editHours);
+        addWorkerButton = findViewById(R.id.addWorkerButton);
+        saveAndBackButton = findViewById(R.id.saveAndBack);
+        saveNoteButton = findViewById(R.id.saveNoteButton);
+        openAddWorkerDialogButton = findViewById(R.id.openAddWorkerDialogButton);
 
         addWorkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,15 +89,32 @@ public class PlaceDataActivity extends AppCompatActivity {
             }
         });
 
+        saveNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String noteText = Note.getText().toString();
+                mPlaceData.setNote(noteText);
+                Toast.makeText(getApplicationContext(), "Jegyzet mentése sikeres!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        openAddWorkerDialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAddWorkerDialog();
+            }
+        });
+
         Intent incomingIntent = getIntent();
         mPlaceData = (PlaceData) incomingIntent.getSerializableExtra("placeData");
-        chosenDate = (String) incomingIntent.getStringExtra("date");
+        chosenDate = incomingIntent.getStringExtra("date");
         mDayData = (DayData) incomingIntent.getSerializableExtra("dayData");
-        mPlacePos = (int) incomingIntent.getIntExtra("placePos", 0);
+        mPlacePos = incomingIntent.getIntExtra("placePos", 0);
 
         // workerList = PopulateWorkerData();
 
         placeNameTextView.setText(mDayData.formatDate(chosenDate) + " - " + mPlaceData.PlaceName);
+        Note.setText(mPlaceData.Note);
 
         workerNames = sqLiteManager.getAllWorkerNames();
         workerNameAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, workerNames);
@@ -123,7 +146,8 @@ public class PlaceDataActivity extends AppCompatActivity {
         try {
             input_name = selectWorkerSpinner.getSelectedItem().toString();
         }catch (NullPointerException e){
-            input_name = "";
+            Toast.makeText(getApplicationContext(), "A név nem lehet üres!", Toast.LENGTH_SHORT).show();
+            return;
         }
         int input_hours;
 
@@ -134,13 +158,9 @@ public class PlaceDataActivity extends AppCompatActivity {
             return;
         }
 
-        if (input_name.equals("")){
-            Toast.makeText(getApplicationContext(), "A név nem lehet üres!", Toast.LENGTH_SHORT).show();
-            return;
-        }else{
-            mPlaceData.addWorker(input_name, input_hours);
-            workerAdapter.notifyDataSetChanged();
-        }
+        mPlaceData.addWorker(input_name, input_hours);
+        workerAdapter.notifyDataSetChanged();
+        editWorkerHours.setText("");
         // Log.v(TAG, "worker added" + mPlaceData.workers.size());
     }
 
@@ -154,6 +174,36 @@ public class PlaceDataActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(workerAdapter);
+    }
+
+    private void openAddWorkerDialog(){
+
+        AlertDialog.Builder mydialog = new AlertDialog.Builder(PlaceDataActivity.this);
+        mydialog.setTitle("Munkás neve: ");
+
+        final EditText nameInput = new EditText(PlaceDataActivity.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        mydialog.setView(nameInput);
+
+        mydialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String inputName=nameInput.getText().toString();
+                sqLiteManager.writeWorkerToDB(inputName);
+                workerNames.add(inputName);
+                workerNameAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), inputName +" sikeresen hozzáadva a listához!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mydialog.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        mydialog.show();
     }
 
     @Override
@@ -171,4 +221,6 @@ public class PlaceDataActivity extends AppCompatActivity {
         AlertDialog alert  = builder.create();
         alert.show();
     }
+
+
 }

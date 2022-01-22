@@ -11,21 +11,47 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/openAddWorkerDialogButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Új munkás létrehozása" />
+
         <TextView
             android:id="@+id/placeName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="TextView"
-            android:textAlignment="center" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:textAlignment="center"
+            android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/noteInput"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/noteInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:ems="30"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:hint="jegyzet..."/>
+
+            <Button
+                android:id="@+id/saveNoteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_weight="1"
+                android:text="OK" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -36,27 +62,48 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
-        <Spinner
-            android:id="@+id/selectWorker"
-            android:layout_width="match_parent"
-            android:layout_height="39dp"
-            android:spinnerMode="dropdown"/>
-
-        <EditText
-            android:id="@+id/editHours"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/addWorkerButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hozzáadás" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/addWorkerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OK" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <Spinner
+                        android:id="@+id/selectWorker"
+                        android:layout_width="400dp"
+                        android:layout_height="39dp"
+                        android:spinnerMode="dropdown" />
+
+                    <EditText
+                        android:id="@+id/editHours"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:inputType="number" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/saveAndBack"
@@ -64,4 +111,5 @@
             android:layout_height="wrap_content"
             android:text="Mentés és vissza" />
     </LinearLayout>
+
 </androidx.appcompat.widget.LinearLayoutCompat>

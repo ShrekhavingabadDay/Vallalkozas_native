@@ -8,8 +8,9 @@ public class PlaceData implements Serializable {
     public String Note;
     public ArrayList<MyWorker> workers;
 
-    public PlaceData(String placeName){
+    public PlaceData(String placeName, ArrayList<MyWorker> workers){
         this.PlaceName = placeName;
+        this.workers = workers;
     }
 
     public void setNote(String noteText){
